@@ -67,9 +67,10 @@ class Board:
             shuffle(random_mine_option_list)
 
             #this range and how self.mine_list is determined are the only differences between this case where there are more mines than tiles and the else case.
+            non_mine_index = 0
             for num in range(0, self.length * self.width - self.mine_num):
-                non_mine = random_mine_option_list[0]
-                random_mine_option_list.pop(0)
+                non_mine = random_mine_option_list[non_mine_index]
+                non_mine_index += 1
             
             self.mine_list = random_mine_option_list
         
@@ -86,15 +87,18 @@ class Board:
             for non_mine in random_mine_option_removal_list:
                 random_mine_option_list.remove(non_mine)
 
+            print("this is prior to the shuffling")
             #randomizes the random_mine_option_list once]
             shuffle(random_mine_option_list)
+            print("shuffling done")
 
             #gives self.mine_list the chosen mines that are not around the self.first_click
+            mine_index = 0
             for num in range(0, self.mine_num):
-                mine = random_mine_option_list[0]
-                random_mine_option_list.pop(0)
+                mine = random_mine_option_list[mine_index]
                 self.mine_list.append(mine)
-
+                mine_index += 1
+            print("done adding mines")
         #this doesn't modify board yet, but it needs to be returned for data_board_maker()
         return board
 
