@@ -23,7 +23,6 @@ class Tile:
 class Board:
 
     def __init__(self, length, width, mine_num, first_click):
-        self.creation_time = datetime.now()
         self.first_click = first_click
         self.length = length
         self.width = width
@@ -35,6 +34,7 @@ class Board:
         self.clicked_count = 0
         self.game_over = False
         self.win_condition = False
+        self.creation_time = datetime.now()
 
 
     #sets all the functions in motion that will fill self.tile_data with the correct data structure for display and gameplay
