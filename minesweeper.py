@@ -1,4 +1,4 @@
-from random import choice
+from random import shuffle
 from datetime import datetime
 from mineremover import mine_remover
 from positionincrementer import position_incrementer
@@ -34,6 +34,7 @@ class Board:
         self.clicked_count = 0
         self.game_over = False
         self.win_condition = False
+        self.creation_time = datetime.now()
 
     #sets all the functions in motion that will fill self.tile_data with the correct data structure for display and gameplay
     def board_to_tiles(self):
@@ -61,10 +62,13 @@ class Board:
             for non_mine in random_mine_option_removal_list:
                 random_mine_option_list.remove(non_mine)
 
+            #randomizes what areas can't be mines
+            shuffle(random_mine_option_list)
+
             #this range and how self.mine_list is determined are the only differences between this case where there are more mines than tiles and the else case.
             for num in range(0, self.length * self.width - self.mine_num):
-                non_mine = choice(random_mine_option_list)
-                random_mine_option_list.remove(non_mine)
+                non_mine = random_mine_option_list[0]
+                random_mine_option_list.pop(0)
             
             self.mine_list = random_mine_option_list
         
@@ -81,20 +85,16 @@ class Board:
             for non_mine in random_mine_option_removal_list:
                 random_mine_option_list.remove(non_mine)
 
-            #turns random_mine_option_list into a set so 'mine' can be removed in fewer steps
-            random_mine_option_set = set(random_mine_option_list)
+            #randomizes the random_mine_option_list once]
+            shuffle(random_mine_option_list)
 
             #gives self.mine_list the chosen mines that are not around the self.first_click
             for num in range(0, self.mine_num):
-                mine = choice(random_mine_option_set)
-                #apparently this line below this comment makes huge boards lag, roughly 3x slower... this line slows mine creation by a factor of 100x. it does, however, work to avoid duplicates. it may be slower because it iterates through the list to find 'mine,' although knowing the index prior would be difficult
-                #implement hash sets
-                random_mine_option_set.discard(mine)
+                mine = random_mine_option_list[0]
+                random_mine_option_list.pop(0)
                 self.mine_list.append(mine)
 
         #this doesn't modify board yet, but it needs to be returned for data_board_maker()
-        print("done making mines :)")
-        print(self.mine_list)
         return board
 
     #runs position_incrementer() to fill out the board for the creation of tiles by self.tile_maker()
@@ -344,6 +344,7 @@ class Board:
         self.clicked_count = 0
         self.game_over = False
         self.win_condition = False
+        self.creation_time = datetime.now()
 
         self.click_tiles(self.first_click)
 
@@ -356,10 +357,11 @@ class Board:
         self.win_condition = True
 
     def print_game_result(self):
+        end_time = datetime.now()
         if self.game_over == True:
             reset_state = False
             while reset_state == False:
-                    reset_input = input("\nYour game has ended in " + str(self.turn_count) + " clicks. You lost. Input \'r\' to try again.\n")
+                    reset_input = input("\nYour game has ended in " + str(self.turn_count) + " clicks and " + str(end_time - self.creation_time) + " seconds. You lost. Input \'r\' to try again.\n")
                     try:
                         if reset_input.lower() == "r":
                             print("")
@@ -372,7 +374,7 @@ class Board:
         else:
             reset_state = False
             while reset_state == False:
-                    reset_input = input("\nYour game has ended in " + str(self.turn_count) + " clicks. You won! Input \'r\' to play again.\n")
+                    reset_input = input("\nYour game has ended in " + str(self.turn_count) + " clicks and " + str(end_time - self.creation_time) + " seconds. You won! Input \'r\' to play again.\n")
                     try:
                         if reset_input.lower() == "r":
                             print("")
@@ -401,7 +403,8 @@ run_game()
 #footnotes ~
 
 #oldest working implementation took 21 seconds to do boardtemp.click_tiles with unoptimized position checking of a 100x100 board
-#optimization via memoization brought this down to 80ms on the building of the board and 280ms to process a click, for the same 100x100 board. roughly a 75x improvement. taking 21s with the current implementation requires a ~430x430 board.
-#the 'real game' with its ui and everything takes maybe a half second to check the center of a board of the 100x100 size
+#optimization via memoization brought this down to 80ms on the building of the board and 280ms to process a click, for the same 100x100 board. roughly a 75x improvement. taking 21s with this more updated optimization requires a ~430x430 board.
+#the 'real game' with its ui and everything takes ~.8-.9 of a second to check the center of a board of the 100x100 size
 #checked_tiles optimization brought a 1000x1000 board with 10000 mines at c500500 from 70 seconds down to a consistent 27. checked_tiles scales with the size of the board as an optimization, possibly (unlikely) slowing down smaller boards. considering how mine creation follows this first click now, total optimizations might approach >100x
-#updating how mines are created greatly sped up massive boards, but removing the existing mines from the list of mine placement options hampered this benefit greatly on those same massive boards. this code seems to be needed, since mines can't be chosen for the same location twice
+#updating how mines are created to a single time shuffle() greatly sped up mine creation. Creation of 500,000 mines still takes several minutes, likely due to how shuffle scales with list size, but the click is at most 27 seconds for a 1000x1000 board
+#final build is harder to time with date_time()
