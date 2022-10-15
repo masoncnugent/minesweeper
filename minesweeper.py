@@ -87,10 +87,8 @@ class Board:
             for non_mine in random_mine_option_removal_list:
                 random_mine_option_list.remove(non_mine)
 
-            print("this is prior to the shuffling")
             #randomizes the random_mine_option_list once]
             shuffle(random_mine_option_list)
-            print("shuffling done")
 
             #gives self.mine_list the chosen mines that are not around the self.first_click
             mine_index = 0
@@ -98,7 +96,6 @@ class Board:
                 mine = random_mine_option_list[mine_index]
                 self.mine_list.append(mine)
                 mine_index += 1
-            print("done adding mines")
         #this doesn't modify board yet, but it needs to be returned for data_board_maker()
         return board
 
