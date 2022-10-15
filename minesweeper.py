@@ -23,6 +23,7 @@ class Tile:
 class Board:
 
     def __init__(self, length, width, mine_num, first_click):
+        self.creation_time = datetime.now()
         self.first_click = first_click
         self.length = length
         self.width = width
@@ -34,7 +35,7 @@ class Board:
         self.clicked_count = 0
         self.game_over = False
         self.win_condition = False
-        self.creation_time = datetime.now()
+
 
     #sets all the functions in motion that will fill self.tile_data with the correct data structure for display and gameplay
     def board_to_tiles(self):
@@ -407,4 +408,4 @@ run_game()
 #the 'real game' with its ui and everything takes ~.8-.9 of a second to check the center of a board of the 100x100 size
 #checked_tiles optimization brought a 1000x1000 board with 10000 mines at c500500 from 70 seconds down to a consistent 27. checked_tiles scales with the size of the board as an optimization, possibly (unlikely) slowing down smaller boards. considering how mine creation follows this first click now, total optimizations might approach >100x
 #updating how mines are created to a single time shuffle() greatly sped up mine creation. Creation of 500,000 mines still takes several minutes, likely due to how shuffle scales with list size, but the click is at most 27 seconds for a 1000x1000 board
-#final build is harder to time with date_time()
+#with the final build clicking a 100x100 board takes 280ms to build the board and process the click. the previous 430x430 board takes 3.8 seconds. taking 21s requires a 1000x1000 board. taken all together, this amounts to a 100x improvement, although the true improvement is likely even greater, as iterating over massive data sets for the length of the data set takes exponentially more time for larger datasets
